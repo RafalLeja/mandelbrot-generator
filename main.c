@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
     {
         char * name = strdup(param.nameprefix);
         char * number = strdup("");
-        sprintf(number, "%d", i);
+        sprintf(number, "%d", i); // poprawić
         name = strcat(name, number);
         name = strcat(name, ".ppm");
         FILE * plik = fopen(name, "w");
@@ -89,7 +89,7 @@ Point imaginarySq(Point p){
 
 Pixel includedInSet(Point p, int w, int h, double scale, Point focus){
     Pixel color = { 0, 0, 0};
-    double const minX = -2.5, maxX = 1.5, minY = -1.25, maxY = 1.25;
+    double const minX = -2.5, maxX = 1.5, minY = -1.25, maxY = 1.25; //long double
     Point imaginaryPoint;
     imaginaryPoint.x = ((p.x+focus.x) * (fabs(minX - maxX)/w) + minX)*scale;
     imaginaryPoint.y = ((p.y+focus.y) * (fabs(minY - maxY)/h) + minY)*scale;
@@ -125,6 +125,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             if (strcmp(argv[i], options[j]) == 0)
             {
                 option = options[j][2];
+                break;
             }
             
         }
@@ -170,7 +171,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             free(buff);
             break;
         default:
-            break;
+            break;//bledy flag
         }
     }
     if (param->height == 0 && param->width != 0)
@@ -181,7 +182,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
         param->width = param->height * 8/5;
     }else if (param->width == 0 && param->height == 0)
     {
-        param->width = 1920;
+        param->width = 1920;//mniej
         param->height = 1200;
     }
 
