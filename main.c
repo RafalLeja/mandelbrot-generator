@@ -51,11 +51,8 @@ int main(int argc, char const *argv[])
     int prog = 0;
     for (int i = 0; i < param.maxframes; i++)
     {
-        char * name = strdup(param.nameprefix);
-        char * number = strdup("");
-        sprintf(number, "%d", i); // poprawić
-        name = strcat(name, number);
-        name = strcat(name, ".ppm");
+        char * name = malloc((strlen(param.nameprefix)+5)*sizeof(char)); // TODO zmienić ze stałej
+        sprintf(name, "%s%05d.ppm", param.nameprefix, i); 
         FILE * plik = fopen(name, "w");
         fprintf(plik, "P3\n");
         fprintf(plik, "%d %d\n", param.width, param.height);
@@ -77,6 +74,7 @@ int main(int argc, char const *argv[])
         offset.x += param.focus.x;
         offset.y += param.focus.y;
         scale *= param.zoom;
+        free(name);
     }
     
     return 0;
@@ -87,9 +85,9 @@ Point imaginarySq(Point p){
     return o; 
 }
 
-Pixel includedInSet(Point p, int w, int h, double scale, Point focus){
+Pixel includedInSet(Point p, int w, int h, long double scale, Point focus){
     Pixel color = { 0, 0, 0};
-    double const minX = -2.5, maxX = 1.5, minY = -1.25, maxY = 1.25; //long double
+    long double const minX = -2.5, maxX = 1.5, minY = -1.25, maxY = 1.25; //long double
     Point imaginaryPoint;
     imaginaryPoint.x = ((p.x+focus.x) * (fabs(minX - maxX)/w) + minX)*scale;
     imaginaryPoint.y = ((p.y+focus.y) * (fabs(minY - maxY)/h) + minY)*scale;
