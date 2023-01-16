@@ -27,7 +27,7 @@ void inputSequence(int argc, char const *argv[], Specs * param);
 
 Pixel includedInSet(Point p, int w, int h, Point bY, Point bX);
 
-void calcScale(Point bY, Point bX, int frame, float zoom);
+void calcScale(Point *bY, Point *bX, int frame, float zoom);
 
 Point imaginarySq(Point p);
 
@@ -41,6 +41,7 @@ int main(int argc, char const *argv[])
 }
 
 void inputSequence(int argc, char const *argv[], Specs * param){
+
     if (argc % 2 == 0)
     {
         fprintf(stderr, "bledna ilosc argumentow");
@@ -77,11 +78,21 @@ void inputSequence(int argc, char const *argv[], Specs * param){
         case 'w':
             i++;
             param->width = atoi(argv[i]);
+            if (param->width == 0)
+            {
+                fprintf(stderr, "szerokosc musi byc wieksza od 0");
+                exit(1);
+            }
             break;
         
         case 'h':
             i++;
             param->height = atoi(argv[i]);
+            if (param->height == 0)
+            {
+                fprintf(stderr, "wysokosc musi byc wieksza od 0");
+                exit(1);
+            }
             break;
 
         case 'n':
@@ -117,7 +128,21 @@ void inputSequence(int argc, char const *argv[], Specs * param){
         default:
             break;
         }
-        
     }
+    
+    if (param->height < 0 && param->width > 0)
+    {
+        param->height = param->width * 5/8;
+    }else if (param->width < 0 && param->height > 0)
+    {
+        param->width = param->height * 8/5;
+    }else if (param->width < 0 && param->height < 0)
+    {
+        param->width = 1920;//mniej
+        param->height = 1200;
+    }
+}
+
+void calcScale(Point *bY, Point *bX, int frame, float zoom){
     
 }
