@@ -27,15 +27,20 @@ void inputSequence(int argc, char const *argv[], Specs * param);
 
 Pixel includedInSet(Point p, int w, int h, Point bY, Point bX);
 
-void calcScale(Point *bY, Point *bX, int frame, float zoom);
+void calcScale(Point *bY, Point *bX, int frame, Specs * param);
 
 Point imaginarySq(Point p);
 
 int main(int argc, char const *argv[])
 {
-    Specs param = { -1, -1, "mandel-", 0.75, -1, {-35, 0} };
+    Specs param = { -1, -1, "mandel-", 0.5, -1, {-35, 0} };
     inputSequence(argc, argv, &param);
     printf("w = %d, h = %d, pre = %s, zoom = %f, frames = %d, fx = %Lf, fy = %Lf\n", param.width, param.height, param.nameprefix, param.zoom, param.maxframes, param.focus.x, param.focus.y);
+    Point max = {1.5, 1.25};
+    Point min = {-2.5, -1.25};
+    for (int frame = 0; frame < param.maxframes; frame++){
+        calcScale(&max, &min, frame, &param);
+    }
 
     return 0;
 }
@@ -143,6 +148,8 @@ void inputSequence(int argc, char const *argv[], Specs * param){
     }
 }
 
-void calcScale(Point *bY, Point *bX, int frame, float zoom){
+void calcScale(Point *max, Point *min, int frame, Specs * param){
+    long double wide = lfabs(max->x - min->x); // calosc - kawalek od punktu
+    long double high = lfabs(max->y - min->y);
     
 }
