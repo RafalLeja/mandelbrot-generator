@@ -136,7 +136,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
 
         case 'n':
             i++;
-            param->nameprefix = strdup(argv[i]);
+            param->nameprefix = strcpy(param->nameprefix, argv[i]);
             break;
 
         case 'z':
