@@ -25,7 +25,7 @@ typedef struct {
 
 void inputSequence(int argc, char const *argv[], Specs * param);
 
-Pixel includedInSet(Point p, int w, int h, Point bY, Point bX);
+Pixel includedInSet(Point p, Point max, Point min, Specs param);
 
 void calcScale(Point *bY, Point *bX, int frame, Specs * param);
 
@@ -39,6 +39,7 @@ int main(int argc, char const *argv[])
     Point max = {1.5, 1.25};
     Point min = {-2.5, -1.25};
     for (int frame = 0; frame < param.maxframes; frame++){
+
         calcScale(&max, &min, frame, &param);
     }
 
@@ -149,7 +150,19 @@ void inputSequence(int argc, char const *argv[], Specs * param){
 }
 
 void calcScale(Point *max, Point *min, int frame, Specs * param){
-    long double wide = lfabs(max->x - min->x); // calosc - kawalek od punktu
-    long double high = lfabs(max->y - min->y);
+    // if o krawędziach
+    long double left = lfabs(min->x - param->focus.x);
+    long double right = lfabs(param->focus.x - max->x);
+    long double up = lfabs(param->focus.y - max->y);
+    long double down = lfabs(min->y - param->focus.y);
+
+    min->x += left*param->zoom;
+    max->x -= right*param->zoom;
+    min->y += down*param->zoom;
+    max->y -= up*param->zoom;
+}
+
+Pixel includedInSet(Point p, Point max, Point min, Specs param){
+    Pixel color = {0, 0, 0};
     
 }
