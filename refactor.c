@@ -194,10 +194,10 @@ void calcScale(Point *max, Point *min, Specs * param){
     long double up = fabsl(param->focus.y - max->y);
     long double down = fabsl(min->y - param->focus.y);
     //printf("%Lf %Lf %Lf %Lf\n", left, right, up, down);
-    min->x += left*param->zoom;
-    max->x -= right*param->zoom;
-    min->y += down*param->zoom;
-    max->y -= up*param->zoom;
+    min->x += left/param->zoom;
+    max->x -= right/param->zoom;
+    min->y += down/param->zoom;
+    max->y -= up/param->zoom;
 }
 
 Pixel includedInSet(Point p, Point max, Point min, Specs param){
