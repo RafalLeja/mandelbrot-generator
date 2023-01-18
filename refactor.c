@@ -29,22 +29,20 @@ Pixel includedInSet(Point p, Point max, Point min, Specs param);
 
 void calcScale(Point *bY, Point *bX, Specs * param);
 
-long double diffrence(Pixel p);
+long double diffrence(int r);
 
 Point imaginarySq(Point p);
 
 int main(int argc, char const *argv[])
 {
-    Specs param = { -1, -1, "mandel-", 0.5, -1, {-35, 0} };
+    Specs param = { -1, -1, "mandel-", 0.75, -1, {0, 0} };
     inputSequence(argc, argv, &param);
     printf("w = %d, h = %d, pre = %s, zoom = %f, frames = %d, fx = %Lf, fy = %Lf\n", param.width, param.height, param.nameprefix, param.zoom, param.maxframes, param.focus.x, param.focus.y);
     Point max = {1.5, 1.25};
     Point min = {-2.5, -1.25};
-    for (int frame = 0; frame < param.maxframes; frame++){
-        Pixel reset = {-1,0,0};
-        Pixel start = {-2,0,0};
-        printf("a");
-        diffrence(reset);
+    int activeFrame = 1;
+    for (int frame = 0; frame < (param.maxframes > 0 ? param.maxframes : activeFrame); frame++){
+        diffrence(-2);
         char * name = malloc((strlen(param.nameprefix)+5)*sizeof(char)); // TODO zmienić ze stałej
         sprintf(name, "%s%05d.ppm", param.nameprefix, frame); 
         FILE * plik = fopen(name, "w");
@@ -53,25 +51,28 @@ int main(int argc, char const *argv[])
             fprintf(stderr, "błąd otwierania pliku");
             return 1;
         }
-        
         fprintf(plik, "P3\n");
         fprintf(plik, "%d %d\n", param.width, param.height);
         fprintf(plik, "255\n");
-
         for (int y = 0; y < param.height; y++)
         {
             for (int x = 0; x < param.width; x++)
             {
                 Point point = {x, y};
                 Pixel color = includedInSet(point, max, min, param);
-                diffrence(color);
+                diffrence(color.r);
+                //printf("%Lf %Lf\n", min.x, max.x);
                 fprintf(plik, "%d %d %d ", color.r, color.g, color.b);
             }
             fprintf(plik, "\n");
         }
         fclose(plik);
         free(name);
-        printf("%Lf", diffrence(reset));
+        if (diffrence(-1) != 0)
+        {
+            activeFrame++;
+        }
+        //printf("%Lf\n", diffrence(-1));
         calcScale(&max, &min, &param);
     }
 
@@ -158,8 +159,8 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             }
             char * buff = malloc((splitIdx - argv[i])*sizeof(char));
             strncpy(buff, argv[i], (splitIdx - argv[i]));
-            param->focus.x = atoi(buff);
-            param->focus.y = atoi(argv[i]+(splitIdx - argv[i])+1);
+            param->focus.x = atof(buff);
+            param->focus.y = atof(argv[i]+(splitIdx - argv[i])+1);
             free(buff);
             break;
 
@@ -179,6 +180,11 @@ void inputSequence(int argc, char const *argv[], Specs * param){
         param->width = 1920;//mniej
         param->height = 1200;
     }
+    if (param->focus.x == 0 && param->focus.y == 0)
+    {
+        param->focus.x = -1.400005;
+    }
+    
 }
 
 void calcScale(Point *max, Point *min, Specs * param){
@@ -187,7 +193,7 @@ void calcScale(Point *max, Point *min, Specs * param){
     long double right = fabsl(param->focus.x - max->x);
     long double up = fabsl(param->focus.y - max->y);
     long double down = fabsl(min->y - param->focus.y);
-
+    //printf("%Lf %Lf %Lf %Lf\n", left, right, up, down);
     min->x += left*param->zoom;
     max->x -= right*param->zoom;
     min->y += down*param->zoom;
@@ -199,9 +205,10 @@ Pixel includedInSet(Point p, Point max, Point min, Specs param){
     Point imaginaryPoint;
     imaginaryPoint.x = (p.x * (fabsl(min.x - max.x)/param.width) + min.x);
     imaginaryPoint.y = (p.y * (fabsl(min.y - max.y)/param.height) + min.y);
+    
     Point z = {0, 0};
     int i; 
-    for (i = 0; i < 2000; i++)
+    for (i = 0; i<2000 && sqrt(pow(z.x,2)+ pow(z.y,2)) < 2; i++)
     {
         Point sqr = imaginarySq(z);
         z.x = sqr.x + imaginaryPoint.x; 
@@ -223,38 +230,26 @@ Point imaginarySq(Point p){
     return o; 
 }
 
-long double diffrence(Pixel p){
-    static Pixel sum;
-    static int c;
-    if (p.r == -1)
+long double diffrence(int r){
+    static long double min;
+    static long double max;
+    if (r == -1)
     {
-        Pixel avg;
-        avg.r = sum.r/c;
-        sum.r = 0;
-        avg.g = sum.g/c;
-        sum.g = 0;
-        avg.b = sum.b/c;
-        sum.b = 0;
-        c = 0;
-        return fmaxl(avg.r, fmaxl(avg.g, avg.b));
-    }else if (p.r == -2)
+        return (max - min);
+    }else if (r == -2)
     {
-        Pixel avg;
-        avg.r = sum.r/c;
-        sum.r = 0;
-        avg.g = sum.g/c;
-        sum.g = 0;
-        avg.b = sum.b/c;
-        sum.b = 0;
-        c = 0;
-        return fmaxl(avg.r, fmaxl(avg.g, avg.b));
-    }else {
-        sum.r += p.r;
-        sum.g += p.g;
-        sum.b += p.b;
-        c++;
+        min = 256;
+        max = -1;
         return 0;
     }
-    
+    if(r < min){
+        min = r;
+    }
+    if (r > max)
+    {
+        max = r;
+    }
+    return 0;
+}
 
 
