@@ -3,6 +3,8 @@
 #include <math.h>
 #include <string.h>
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
 typedef struct {
   long double x;
   long double y;
@@ -29,13 +31,13 @@ Pixel includedInSet(Point p, Point max, Point min, Specs param);
 
 void calcScale(Point *bY, Point *bX, Specs * param);
 
-long double diffrence(int r);
+long double diffrence(int g);
 
 Point imaginarySq(Point p);
 
 int main(int argc, char const *argv[])
 {
-    Specs param = { -1, -1, "mandel-", 0.2, -1, {-1.15, -0.2749} };
+    Specs param = { -1, -1, "mandel-", 0.2, -1, {-1.150005, -0.274905} };
     inputSequence(argc, argv, &param);
     printf("w = %d, h = %d, pre = %s, zoom = %f, frames = %d, fx = %Lf, fy = %Lf\n", param.width, param.height, param.nameprefix, param.zoom, param.maxframes, param.focus.x, param.focus.y);
     Point max = {1.5, 1.25};
@@ -60,7 +62,7 @@ int main(int argc, char const *argv[])
             {
                 Point point = {x, y};
                 Pixel color = includedInSet(point, max, min, param);
-                diffrence(color.r);
+                diffrence(color.g);
                 //printf("%Lf %Lf\n", min.x, max.x);
                 fprintf(plik, "%d %d %d ", color.r, color.g, color.b);
             }
@@ -72,7 +74,6 @@ int main(int argc, char const *argv[])
         {
             activeFrame++;
         }
-        //printf("%Lf\n", diffrence(-1));
         calcScale(&max, &min, &param);
     }
 
@@ -230,24 +231,26 @@ Point imaginarySq(Point p){
     return o; 
 }
 
-long double diffrence(int r){
-    static long double min;
-    static long double max;
-    if (r == -1)
+long double diffrence(int g){
+    static long long cntr;
+    static long long cntw;
+    if (g == -1)
     {
-        return (max - min);
-    }else if (r == -2)
+        long long out = MIN(cntr, cntw);
+        cntw=0;
+        cntr =0;
+        return out;
+    }else if (g == -2)
     {
-        min = 256;
-        max = -1;
+        cntw=0;
+        cntr =0;
+
         return 0;
     }
-    if(r < min){
-        min = r;
-    }
-    if (r > max)
-    {
-        max = r;
+    if(g > 0){
+        cntw++;
+    }else{
+        cntr++;
     }
     return 0;
 }

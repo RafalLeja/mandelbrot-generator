@@ -4,6 +4,7 @@
 # Drawings
 *.ppm
 *.pgm
+*.gif
 
 # Object files
 *.o
