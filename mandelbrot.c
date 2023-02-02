@@ -5,6 +5,11 @@
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+typedef enum difff{
+    CHECK,
+    ADDWHITE,
+    ADDRED
+} diff;
 typedef struct {
   long double x;
   long double y;
@@ -31,7 +36,7 @@ Pixel includedInSet(Point p, Point max, Point min, Specs param);
 
 void calcScale(Point *bY, Point *bX, Specs * param);
 
-long double diffrence(int g);
+long long int diffrence(diff arg, long long int * cntW, long long int * cntR);
 
 Point imaginarySq(Point p);
 
@@ -44,7 +49,8 @@ int main(int argc, char const *argv[])
     Point min = {-2.5, -1.25};
     int activeFrame = 1;
     for (int frame = 0; frame < (param.maxframes > 0 ? param.maxframes : activeFrame); frame++){
-        diffrence(-2);
+        long long int cntr = 0;
+        long long int cntw = 0;
         char * name = malloc((strlen(param.nameprefix)+5)*sizeof(char)); // TODO zmienić ze stałej
         sprintf(name, "%s%05d.ppm", param.nameprefix, frame); 
         FILE * plik = fopen(name, "w");
@@ -62,7 +68,7 @@ int main(int argc, char const *argv[])
             {
                 Point point = {x, y};
                 Pixel color = includedInSet(point, max, min, param);
-                diffrence(color.g);
+                diffrence((color.g > 0 ? ADDWHITE : ADDRED), &cntw, &cntr);
                 //printf("%Lf %Lf\n", min.x, max.x);
                 fprintf(plik, "%d %d %d ", color.r, color.g, color.b);
             }
@@ -71,7 +77,7 @@ int main(int argc, char const *argv[])
         fclose(plik);
         printf("frame %s done!\n", name);
         free(name);
-        if (diffrence(-1) != 0)
+        if (diffrence(CHECK, &cntw, &cntr) != 0)
         {
             activeFrame++;
         }
@@ -232,26 +238,23 @@ Point imaginarySq(Point p){
     return o; 
 }
 
-long double diffrence(int g){
-    static long long cntr;
-    static long long cntw;
-    if (g == -1)
+long long int diffrence(diff arg, long long int * cntw, long long int * cntr){
+    switch (arg)
     {
-        long long out = MIN(cntr, cntw);
+    case CHECK:
+        long long out = MIN(*cntr, *cntw);
         cntw=0;
         cntr =0;
         return out;
-    }else if (g == -2)
-    {
-        cntw=0;
-        cntr =0;
+        break;
 
-        return 0;
-    }
-    if(g > 0){
-        cntw++;
-    }else{
-        cntr++;
+    case ADDRED:
+        *cntr += 1;
+        break;
+    
+    case ADDWHITE:
+        *cntw += 1;
+        break;
     }
     return 0;
 }
