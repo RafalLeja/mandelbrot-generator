@@ -42,7 +42,7 @@ Point imaginarySq(Point p);
 
 int main(int argc, char const *argv[])
 {
-    Specs param = { -1, -1, "mandel-", 0.2, -1, {-1.150005, -0.274905} };
+    Specs param = { -1, -1, "mandel-", 0.2, -1, {-0.743643887037158704752191506114774, -0.131825904205311970493132056385139} };
     inputSequence(argc, argv, &param);
     printf("w = %d, h = %d, pre = %s, zoom = %f, frames = %d, fx = %Lf, fy = %Lf\n", param.width, param.height, param.nameprefix, param.zoom, param.maxframes, param.focus.x, param.focus.y);
     Point max = {1.5, 1.25};
