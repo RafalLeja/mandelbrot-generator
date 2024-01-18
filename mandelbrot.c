@@ -1,3 +1,5 @@
+// Rafał Leja 2022
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -30,6 +32,8 @@ typedef struct {
     Point focus;
 } Specs;
 
+void printHelp();
+
 void inputSequence(int argc, char const *argv[], Specs * param);
 
 Pixel includedInSet(Point p, Point max, Point min, Specs param);
@@ -56,7 +60,7 @@ int main(int argc, char const *argv[])
         FILE * plik = fopen(name, "w");
         if (!plik)
         {
-            fprintf(stderr, "błąd otwierania pliku");
+            fprintf(stderr, "file %s could not be opened\n", name);
             return 1;
         }
         fprintf(plik, "P3\n");
@@ -87,11 +91,28 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
+void printHelp(){
+    printf("Mandelbrot generator\n");
+    printf("Usage: ./mandelbrot [options]\n");
+    printf("Options:\n");
+    printf("-h - prints this help\n");
+    printf("--width <int> - width of the image\n");
+    printf("--height <int> - height of the image\n");
+    printf("--nameprefix <string> - prefix of the image name\n");
+    printf("--zoom <float> - zoom of the image\n");
+    printf("--maxframes <int> - max number of frames\n");
+    printf("--focus <float>,<float> - focus of the image\n");
+}
+
 void inputSequence(int argc, char const *argv[], Specs * param){
 
     if (argc % 2 == 0)
     {
-        fprintf(stderr, "bledna ilosc argumentow");
+        if (argv[1][2] != 'h')
+        {
+            fprintf(stderr, "invalid number of arguments\n");
+        }    
+        printHelp();
         exit(1);
     }
     char options[6][15] = {"--width", "--height", "--nameprefix", "--zoom", "--maxframes", "--focus"};
@@ -110,13 +131,13 @@ void inputSequence(int argc, char const *argv[], Specs * param){
         }
 
         if (option == '\0'){
-            fprintf(stderr, "bledny argument %s", argv[i]);
+            fprintf(stderr, "invalid argument %s", argv[i]);
             exit(1);
         }
 
         if (argv[i+1][0] == '-' && argv[i+1][1] == '-' && option != 'n')
         {
-            fprintf(stderr, "brak podania wartosci dla argumentu %s\n", argv[i]);
+            fprintf(stderr, "argument without value %s\n", argv[i]);
             exit(1);
         }
         
@@ -127,7 +148,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             param->width = atoi(argv[i]);
             if (param->width == 0)
             {
-                fprintf(stderr, "szerokosc musi byc wieksza od 0");
+                fprintf(stderr, "width must be greater than 0");
                 exit(1);
             }
             break;
@@ -137,7 +158,7 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             param->height = atoi(argv[i]);
             if (param->height == 0)
             {
-                fprintf(stderr, "wysokosc musi byc wieksza od 0");
+                fprintf(stderr, "height must be greater than 0");
                 exit(1);
             }
             break;
@@ -162,7 +183,8 @@ void inputSequence(int argc, char const *argv[], Specs * param){
             char *splitIdx = strchr(argv[i], ',');
             if (splitIdx == NULL)
             {
-                fprintf(stderr, "blad parametru --focus X,Y");
+                fprintf(stderr, "invalid \"focus\" ");
+                printHelp();
                 exit(1);
             }
             char * buff = malloc((splitIdx - argv[i])*sizeof(char));
@@ -196,12 +218,10 @@ void inputSequence(int argc, char const *argv[], Specs * param){
 }
 
 void calcScale(Point *max, Point *min, Specs * param){
-    // if o krawędziach
     long double left = fabsl(min->x - param->focus.x);
     long double right = fabsl(param->focus.x - max->x);
     long double up = fabsl(param->focus.y - max->y);
     long double down = fabsl(min->y - param->focus.y);
-    //printf("%Lf %Lf %Lf %Lf\n", left, right, up, down);
     min->x += left*param->zoom;
     max->x -= right*param->zoom;
     min->y += down*param->zoom;
