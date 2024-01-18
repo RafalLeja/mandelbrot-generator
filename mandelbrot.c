@@ -99,9 +99,9 @@ void printHelp(){
     printf("--width <int> - width of the image\n");
     printf("--height <int> - height of the image\n");
     printf("--nameprefix <string> - prefix of the image name\n");
-    printf("--zoom <float> - zoom of the image\n");
+    printf("--zoom <float> - how fast the frames zoom in\n");
     printf("--maxframes <int> - max number of frames\n");
-    printf("--focus <float>,<float> - focus of the image\n");
+    printf("--focus <float>,<float> - point you want to focus to\n");
 }
 
 void inputSequence(int argc, char const *argv[], Specs * param){
